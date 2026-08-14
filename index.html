@@ -49,9 +49,7 @@
   .add-btn{background:var(--green-tint); border:1.5px dashed var(--green); color:var(--green-dark); border-radius:10px; padding:12px; width:100%; font-size:13.5px; font-weight:700; cursor:pointer; margin-top:4px;}
   .add-btn:hover{background:#DCE6FB;}
   .company-row{display:flex; gap:8px; align-items:center; margin-bottom:8px;}
-  .company-row input{margin-bottom:0;}
-  .company-row .c-name{flex:1.4;}
-  .company-row .c-corpcode{flex:1;}
+  .company-row input{margin-bottom:0; flex:1;}
   .company-row .c-rm{flex:none; width:34px; height:34px; border-radius:8px; border:1.5px solid var(--line); background:#fff; color:var(--danger); font-size:14px; cursor:pointer; display:flex; align-items:center; justify-content:center; padding:0;}
   .company-row .c-rm:hover{background:#FDECEE; border-color:var(--danger);}
   .lx-fixed-note{display:flex; align-items:center; gap:8px; background:var(--green-tint); border:1px solid var(--green); color:var(--green-dark); border-radius:10px; padding:11px 14px; font-size:13px; font-weight:600; margin-bottom:14px;}
@@ -182,16 +180,12 @@
   <!-- 6. 관심 기업 (공시 자료 수집) -->
   <section class="card">
     <div class="step-head"><span class="step-num">6</span><span class="step-title">관심 기업 (공시 자료 수집)</span><span class="optional-tag">선택</span></div>
-    <div class="step-desc">신청하신 뉴스 다이제스트 하단에 공시 자료를 함께 받아보고 싶은 기업을 등록해주세요.</div>
+    <div class="step-desc">신청하신 뉴스 다이제스트 하단에 공시 자료를 함께 받아보고 싶은 기업을 등록해주세요. 정확한 정식 회사명으로 입력해주세요.</div>
 
     <div class="lx-fixed-note">🏢 LX 그룹 관련 공시는 항상 출력됩니다</div>
 
     <div id="companyList"></div>
     <button type="button" class="add-btn" id="addCompanyBtn">+ 기업 추가</button>
-    <div class="word-hint" style="margin-top:10px; margin-bottom:0;">
-      고유번호(corp_code)는 <a href="https://dart.fss.or.kr" target="_blank" rel="noopener" style="color:var(--green); font-weight:700;">DART 전자공시시스템</a>에서
-      회사명 검색 → 기업개황 클릭 후, 주소창 URL의 <b>selectKey=</b> 뒤 8자리 숫자를 확인하세요.
-    </div>
   </section>
 
   <button type="button" class="submit-btn" id="submitBtn">제출하기</button>
@@ -282,7 +276,7 @@
   addGroup();
 
   let companyCount = 0;
-  function addCompanyRow(name, corpCode){
+  function addCompanyRow(name){
     companyCount++;
     const id = companyCount;
     const wrap = document.createElement('div');
@@ -290,7 +284,6 @@
     wrap.id = 'company-' + id;
     wrap.innerHTML = `
       <input type="text" class="c-name" placeholder="기업명 (예: KCC)" value="${(name || '').replace(/"/g, '&quot;')}">
-      <input type="text" class="c-corpcode" placeholder="고유번호 8자리" value="${(corpCode || '').replace(/"/g, '&quot;')}">
       <button type="button" class="c-rm" aria-label="삭제">✕</button>
     `;
     document.getElementById('companyList').appendChild(wrap);
@@ -298,14 +291,13 @@
       document.getElementById('company-' + id).remove();
     });
   }
-  addCompanyRow('', '');
+  addCompanyRow('');
 
   function collectInterestCompanies(){
     const list = [];
     document.querySelectorAll('#companyList .company-row').forEach(function(row){
       const name = row.querySelector('.c-name').value.trim();
-      const corpCode = row.querySelector('.c-corpcode').value.trim();
-      if (name) list.push({ name: name, corpCode: corpCode });
+      if (name) list.push(name);
     });
     return list;
   }
@@ -376,8 +368,8 @@
     if (data.interestCompanies && data.interestCompanies.length > 0) {
       document.getElementById('companyList').innerHTML = '';
       companyCount = 0;
-      data.interestCompanies.forEach(function(c){
-        addCompanyRow(c.name || '', c.corpCode || '');
+      data.interestCompanies.forEach(function(name){
+        addCompanyRow(typeof name === 'string' ? name : (name && name.name) || '');
       });
     }
 
@@ -476,7 +468,7 @@
 
   document.addEventListener('DOMContentLoaded', function(){
     document.getElementById('addGroupBtn').addEventListener('click', addGroup);
-    document.getElementById('addCompanyBtn').addEventListener('click', function(){ addCompanyRow('', ''); });
+    document.getElementById('addCompanyBtn').addEventListener('click', function(){ addCompanyRow(''); });
     document.getElementById('typeNew').addEventListener('change', updateChannelBlocks);
     document.getElementById('typeChange').addEventListener('change', updateChannelBlocks);
     document.getElementById('excludeWeekend').addEventListener('change', updateChannelBlocks);
