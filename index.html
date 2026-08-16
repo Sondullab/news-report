@@ -302,10 +302,19 @@
         ・두 단어 필수 포함이 필요한 경우 <b>+</b>로 연결하세요. (예: 재건축+압구정)<br>
         ・특정 단어가 들어간 기사를 빼고 싶을 때는 <b>-</b>를 쓰세요. (예: KCC-농구-감독 * 제거 조건 복수가능)
       </div>
+      <label class="check-option g-urgent-wrap" style="margin-top:4px; margin-bottom:0;">
+        <input type="checkbox" class="g-urgent">
+        <div><div class="opt-text">🚨 긴급 그룹으로 지정</div><div class="opt-sub">이 그룹의 기사는 매시간 확인해서 감지 즉시 텔레그램으로 알려드립니다 (정기 발송 시각과 무관)</div></div>
+      </label>
     `;
     document.getElementById('groupList').appendChild(wrap);
     wrap.querySelector('.rm').addEventListener('click', function(){
       document.getElementById('group-' + id).remove();
+    });
+    const urgentWrap = wrap.querySelector('.g-urgent-wrap');
+    const urgentCb = wrap.querySelector('.g-urgent');
+    urgentCb.addEventListener('change', function(){
+      urgentWrap.classList.toggle('checked', urgentCb.checked);
     });
   }
   addGroup();
@@ -359,7 +368,8 @@
       const purpose = b.querySelector('.g-purpose').value.trim();
       const kwRaw = b.querySelector('.g-keywords').value.trim();
       const keywords = kwRaw.split(',').map(s => s.trim()).filter(Boolean);
-      if(name || purpose || keywords.length) groups.push({ name, purpose, keywords });
+      const urgent = b.querySelector('.g-urgent').checked;
+      if(name || purpose || keywords.length) groups.push({ name, purpose, keywords, urgent });
     });
     return groups;
   }
@@ -409,6 +419,8 @@
         lastBlock.querySelector('.g-name').value = g.name || '';
         lastBlock.querySelector('.g-purpose').value = g.purpose || '';
         lastBlock.querySelector('.g-keywords').value = (g.keywords || []).join(', ');
+        lastBlock.querySelector('.g-urgent').checked = !!g.urgent;
+        lastBlock.querySelector('.g-urgent-wrap').classList.toggle('checked', !!g.urgent);
       });
     }
 
